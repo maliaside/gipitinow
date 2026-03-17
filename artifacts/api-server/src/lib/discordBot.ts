@@ -14,8 +14,8 @@ import { eq } from "drizzle-orm";
 import { startAutoRegistration } from "./autoRegisterBot.js";
 import { fetchRandomProxy } from "./proxyUtils.js";
 
-const DISCORD_TOKEN = "";
-const APPLICATION_ID = "";
+const DISCORD_TOKEN = "MTQ2ODQyNTI3NDIyNzE2NzI2Mg.G0B04P.bnohaPsjRzaRixC_UgUWpyorC7M-__zL2cuuNE";
+const APPLICATION_ID = "1468425274227167262";
 
 let discordClient: Client | null = null;
 
