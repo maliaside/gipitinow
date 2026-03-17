@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "ChatGPT Auto Register"
+version = "1.0.0"
+id = "artifacts/chatgpt-auto-register"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 23814
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/chatgpt-auto-register run dev"
+
+[services.env]
+PORT = "23814"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/chatgpt-auto-register", "run", "build"]
+publicDir = "artifacts/chatgpt-auto-register/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

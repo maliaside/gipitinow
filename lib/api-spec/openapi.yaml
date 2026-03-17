@@ -1,0 +1,496 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: ChatGPT Auto Register API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: accounts
+    description: Account management
+  - name: proxies
+    description: Proxy management
+  - name: tasks
+    description: Registration tasks
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [accounts]
+      summary: List all registered accounts
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Add a manually created account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequest"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get account by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAccount
+      tags: [accounts]
+      summary: Delete an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully
+
+  /accounts/export:
+    get:
+      operationId: exportAccounts
+      tags: [accounts]
+      summary: Export accounts as CSV
+      responses:
+        "200":
+          description: CSV export
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /proxies:
+    get:
+      operationId: listProxies
+      tags: [proxies]
+      summary: List all proxies
+      responses:
+        "200":
+          description: List of proxies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Proxy"
+    post:
+      operationId: addProxy
+      tags: [proxies]
+      summary: Add a proxy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProxyRequest"
+      responses:
+        "201":
+          description: Proxy added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proxy"
+
+  /proxies/{id}:
+    delete:
+      operationId: deleteProxy
+      tags: [proxies]
+      summary: Delete a proxy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /proxies/batch:
+    post:
+      operationId: addProxiesBatch
+      tags: [proxies]
+      summary: Add multiple proxies at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                proxies:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - proxies
+      responses:
+        "201":
+          description: Proxies added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: integer
+                  failed:
+                    type: integer
+                required:
+                  - added
+                  - failed
+
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List registration tasks
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RegistrationTask"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a new registration task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskRequest"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationTask"
+
+  /tasks/{id}:
+    get:
+      operationId: getTask
+      tags: [tasks]
+      summary: Get task by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationTask"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tasks/{id}/start:
+    post:
+      operationId: startTask
+      tags: [tasks]
+      summary: Start a registration task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationTask"
+
+  /tasks/{id}/stop:
+    post:
+      operationId: stopTask
+      tags: [tasks]
+      summary: Stop a running task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task stopped
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationTask"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [accounts]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        password:
+          type: string
+        status:
+          type: string
+          enum: [active, failed, pending, unverified]
+        proxyUsed:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          nullable: true
+      required:
+        - id
+        - email
+        - password
+        - status
+        - createdAt
+
+    CreateAccountRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        notes:
+          type: string
+      required:
+        - email
+        - password
+
+    Proxy:
+      type: object
+      properties:
+        id:
+          type: integer
+        host:
+          type: string
+        port:
+          type: integer
+        username:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+        protocol:
+          type: string
+          enum: [http, https, socks4, socks5]
+        status:
+          type: string
+          enum: [active, failed, untested]
+        lastChecked:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - host
+        - port
+        - protocol
+        - status
+
+    CreateProxyRequest:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+        protocol:
+          type: string
+          enum: [http, https, socks4, socks5]
+      required:
+        - host
+        - port
+        - protocol
+
+    RegistrationTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+          enum: [idle, running, paused, completed, failed]
+        totalAccounts:
+          type: integer
+        successCount:
+          type: integer
+        failedCount:
+          type: integer
+        useProxy:
+          type: boolean
+        emailDomain:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        logs:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - status
+        - totalAccounts
+        - successCount
+        - failedCount
+        - useProxy
+        - createdAt
+
+    CreateTaskRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        totalAccounts:
+          type: integer
+        useProxy:
+          type: boolean
+        emailDomain:
+          type: string
+      required:
+        - name
+        - totalAccounts
+        - useProxy
+
+    Stats:
+      type: object
+      properties:
+        totalAccounts:
+          type: integer
+        activeAccounts:
+          type: integer
+        failedAccounts:
+          type: integer
+        totalProxies:
+          type: integer
+        activeProxies:
+          type: integer
+        runningTasks:
+          type: integer
+        successRate:
+          type: number
+      required:
+        - totalAccounts
+        - activeAccounts
+        - failedAccounts
+        - totalProxies
+        - activeProxies
+        - runningTasks
+        - successRate

@@ -1,0 +1,17 @@
+packages:
+  "framer-motion": "For fluid UI animations and staggered page transitions"
+  "recharts": "For premium dashboard data visualization"
+  "date-fns": "For formatting timestamps beautifully"
+  "react-hook-form": "For robust form state management"
+  "@hookform/resolvers": "For Zod integration with react-hook-form"
+  "zod": "For form validation schemas"
+
+images:
+  - path: "artifacts/chatgpt-auto-register/public/images/dark-mesh-bg.png"
+    description: "A very dark, professional deep blue and black abstract gradient mesh background, suitable for a dark mode tech dashboard."
+    aspect_ratio: "16:9"
+
+notes:
+  - "Assuming @workspace/api-client-react is correctly linked and provides the generated React Query hooks."
+  - "The UI heavily leverages the existing Shadcn UI components provided in the workspace."
+  - "Dark mode is forced by default to match the 'dark mode professional tech tool' requirement."
