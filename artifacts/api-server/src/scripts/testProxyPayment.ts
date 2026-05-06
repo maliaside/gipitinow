@@ -198,7 +198,7 @@ async function main() {
       for (let i = 0; i < 8; i++) {
         await sleep(3500);
         const frames = proxyPage.frames();
-        const stripes = frames.filter(f => f.url().includes("stripe.com"));
+        const stripes = frames.filter((f: { url(): string }) => f.url().includes("stripe.com"));
         log(`  Attempt ${i+1}: ${frames.length} frames, ${stripes.length} Stripe`);
         for (const f of frames) {
           if (f.url() && f.url() !== "about:blank") {

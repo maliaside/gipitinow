@@ -46,7 +46,7 @@ const createTaskSchema = z.object({
 
 type CreateTaskForm = z.infer<typeof createTaskSchema>;
 
-const taskStatusConfig = {
+const taskStatusConfig: Record<string, { icon: typeof Clock; color: string; border: string; animate?: string }> = {
   idle: { icon: Clock, color: "text-slate-400", border: "border-slate-400/20" },
   running: { icon: Activity, color: "text-primary", border: "border-primary/20", animate: "animate-pulse" },
   paused: { icon: Square, color: "text-amber-400", border: "border-amber-400/20" },
@@ -61,7 +61,7 @@ export function Tasks() {
 
   // Polling every 5 seconds to show progress updates
   const { data: tasks = [], isLoading } = useListTasks({
-    query: { refetchInterval: 5000 }
+    query: { queryKey: getListTasksQueryKey(), refetchInterval: 5000 }
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getListTasksQueryKey() });

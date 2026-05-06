@@ -364,19 +364,19 @@ export class RegistrationBot {
           await comboboxes.nth(0).click();
           await randomDelay(300, 500);
           await page.getByRole("option", { name: monthName, exact: false }).first().click().catch(async () => {
-            await page.locator(`[role="option"]:has-text("${monthName}")`).first().click().catch(() => {});
+            await page!.locator(`[role="option"]:has-text("${monthName}")`).first().click().catch(() => {});
           });
           await randomDelay(300, 500);
           await comboboxes.nth(1).click();
           await randomDelay(300, 500);
           await page.getByRole("option", { name: String(parseInt(bdDD)), exact: true }).first().click().catch(async () => {
-            await page.locator(`[role="option"]:has-text("${parseInt(bdDD)}")`).first().click().catch(() => {});
+            await page!.locator(`[role="option"]:has-text("${parseInt(bdDD)}")`).first().click().catch(() => {});
           });
           await randomDelay(300, 500);
           await comboboxes.nth(2).click();
           await randomDelay(300, 500);
           await page.getByRole("option", { name: bdYYYY, exact: true }).first().click().catch(async () => {
-            await page.locator(`[role="option"]:has-text("${bdYYYY}")`).first().click().catch(() => {});
+            await page!.locator(`[role="option"]:has-text("${bdYYYY}")`).first().click().catch(() => {});
           });
           this.log(`📅 Tanggal lahir (combobox) diisi: ${birthday}`);
         }

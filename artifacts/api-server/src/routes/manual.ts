@@ -32,7 +32,10 @@ function sessionToJson(s: ReturnType<typeof createSession>) {
 // POST /api/manual/register — start a new manual registration
 router.post("/manual/register", async (req, res) => {
   const { email, password } = req.body;
-  if (!email) return res.status(400).json({ error: "email is required" });
+  if (!email) {
+    res.status(400).json({ error: "email is required" });
+    return;
+  }
 
   const session = createSession(email, password || "");
 
@@ -63,16 +66,25 @@ router.post("/manual/register", async (req, res) => {
 // GET /api/manual/register/:id — poll session status
 router.get("/manual/register/:id", (req, res) => {
   const session = sessions.get(req.params.id);
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) {
+    res.status(404).json({ error: "Session not found" });
+    return;
+  }
   res.json(sessionToJson(session));
 });
 
 // POST /api/manual/register/:id/code — submit verification code
 router.post("/manual/register/:id/code", (req, res) => {
   const { code } = req.body;
-  if (!code) return res.status(400).json({ error: "code is required" });
+  if (!code) {
+    res.status(400).json({ error: "code is required" });
+    return;
+  }
   const ok = submitCode(req.params.id, code.toString().trim());
-  if (!ok) return res.status(400).json({ error: "Session not waiting for code or not found" });
+  if (!ok) {
+    res.status(400).json({ error: "Session not waiting for code or not found" });
+    return;
+  }
   res.json({ success: true });
 });
 

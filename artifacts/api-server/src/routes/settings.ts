@@ -47,7 +47,8 @@ router.post("/settings", async (req, res) => {
 router.post("/settings/test-cloudmail", async (req, res) => {
   const { baseUrl, adminEmail, adminPassword } = req.body;
   if (!baseUrl || !adminEmail || !adminPassword) {
-    return res.status(400).json({ success: false, message: "Isi semua field yang diperlukan" });
+    res.status(400).json({ success: false, message: "Isi semua field yang diperlukan" });
+    return;
   }
   try {
     const client = new CloudMailClient({ baseUrl, adminEmail, adminPassword });

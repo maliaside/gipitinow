@@ -49,14 +49,20 @@ router.post("/tasks", async (req, res) => {
 router.get("/tasks/:id", async (req, res) => {
   const { id } = GetTaskParams.parse({ id: parseInt(req.params.id) });
   const [task] = await db.select().from(tasksTable).where(eq(tasksTable.id, id));
-  if (!task) return res.status(404).json({ error: "Task not found" });
+  if (!task) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
   res.json(formatTask(task));
 });
 
 router.post("/tasks/:id/start", async (req, res) => {
   const { id } = StartTaskParams.parse({ id: parseInt(req.params.id) });
   const [task] = await db.select().from(tasksTable).where(eq(tasksTable.id, id));
-  if (!task) return res.status(404).json({ error: "Task not found" });
+  if (!task) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
 
   await db.update(tasksTable).set({
     status: "running",

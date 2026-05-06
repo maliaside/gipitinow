@@ -43,6 +43,7 @@ export type SessionStatus =
   | "waiting_code"
   | "filling_code"
   | "filling_profile"
+  | "registered"
   | "paying"
   | "waiting_human_submit"
   | "success"
@@ -59,6 +60,7 @@ export interface ManualSession {
   codeResolver: ((code: string) => void) | null;
   browser: Browser | null;
   presetName?: string;
+  name?: string;
   checkoutUrl?: string;
   discordUserId?: string;
   sessionCookies?: any[];
@@ -314,7 +316,7 @@ export async function runManualRegistration(
     });
     const page = await context.newPage();
 
-    if (session.status === "cancelled") throw new Error("Tugas dibatalkan");
+    if ((session.status as string) === "cancelled") throw new Error("Tugas dibatalkan");
 
     // Langkah 1: Buka halaman ChatGPT
     appendLog(session, `🔗 Membuka halaman utama ChatGPT...`);
@@ -381,7 +383,7 @@ export async function runManualRegistration(
     appendLog(session, `📄 Halaman signup: ${title}`);
     appendLog(session, `🌐 URL saat ini: ${page.url()}`);
 
-    if (session.status === "cancelled") throw new Error("Tugas dibatalkan");
+    if ((session.status as string) === "cancelled") throw new Error("Tugas dibatalkan");
 
     // Tangani cookie consent dialog ("We use cookies")
     for (const cookieSel of [
@@ -462,7 +464,7 @@ export async function runManualRegistration(
     await page.keyboard.press("Enter");
     await randomDelay(800, 1200);
 
-    if (session.status === "cancelled") throw new Error("Tugas dibatalkan");
+    if ((session.status as string) === "cancelled") throw new Error("Tugas dibatalkan");
 
     // Langkah 3: Isi password
     appendLog(session, `🔒 Mengisi kolom password...`);
@@ -494,7 +496,7 @@ export async function runManualRegistration(
       // Ignore navigation errors saat cek konten
     }
 
-    if (session.status === "cancelled") throw new Error("Tugas dibatalkan");
+    if ((session.status as string) === "cancelled") throw new Error("Tugas dibatalkan");
 
     // Langkah 4: Tunggu kode verifikasi dari pengguna
     appendLog(session, `📬 ChatGPT sedang mengirim kode verifikasi ke ${email}...`);
@@ -557,7 +559,7 @@ export async function runManualRegistration(
     await page.keyboard.press("Enter").catch(() => {});
     await randomDelay(600, 1000);
 
-    if (session.status === "cancelled") throw new Error("Tugas dibatalkan");
+    if ((session.status as string) === "cancelled") throw new Error("Tugas dibatalkan");
 
     // Langkah 6: Isi data profil
     appendLog(session, `👤 Mengisi data profil: ${firstName} ${lastName}...`);
@@ -739,7 +741,7 @@ export async function runManualRegistration(
         // Coba combobox (role="combobox") — force:true + timeout pendek agar tidak hang 30s
         try {
           const comboboxes = page.locator('[role="combobox"], [aria-haspopup="listbox"]');
-          const cbCount = await comboboxes.count({ timeout: 1500 }).catch(() => 0);
+          const cbCount = await comboboxes.count().catch(() => 0);
           if (cbCount >= 3) {
             await comboboxes.nth(0).click({ force: true, timeout: 3000 });
             await randomDelay(300, 500);
@@ -827,7 +829,7 @@ export async function runManualRegistration(
         if (accountCreatedConfirmed) {
           appendLog(session, `✅ Akun terkonfirmasi server — tunggu navigasi...`);
           try {
-            await page.waitForURL(url => !url.includes("about-you"), { timeout: 10000 });
+            await page.waitForURL(url => !url.href.includes("about-you"), { timeout: 10000 });
             appendLog(session, `✅ Navigasi berhasil setelah account created`);
           } catch {
             // Navigasi mungkin masih berjalan atau halaman sudah pindah — tidak masalah
@@ -848,7 +850,7 @@ export async function runManualRegistration(
 
         // Tunggu navigasi keluar dari about-you (maks 15 detik)
         try {
-          await page.waitForURL(url => !url.includes("about-you"), { timeout: 15000 });
+          await page.waitForURL(url => !url.href.includes("about-you"), { timeout: 15000 });
           appendLog(session, `✅ Navigasi berhasil`);
         } catch {
           // Timeout: cek apakah ada error validasi di halaman
@@ -955,7 +957,7 @@ export async function runManualRegistration(
       await randomDelay(1200, 1800);
     }
 
-    if (session.status !== "success" && session.status !== "registered") {
+    if ((session.status as string) !== "success" && (session.status as string) !== "registered") {
       const lastUrl = page.url();
       throw new Error(`Proses tidak selesai setelah ${attempts} percobaan. URL terakhir: ${lastUrl}`);
     }
@@ -976,14 +978,14 @@ export async function runManualRegistration(
     }
 
   } catch (err: any) {
-    if (session.status !== "cancelled") {
+    if ((session.status as string) !== "cancelled") {
       session.status = "failed";
       appendLog(session, `❌ Registrasi gagal: ${err.message}`);
     }
   } finally {
     if (browser) {
       try { await browser.close(); } catch {
-        try { browser.process()?.kill('SIGKILL'); } catch { }
+        try { (browser as any).process()?.kill('SIGKILL'); } catch { }
       }
       session.browser = null;
     }
@@ -2536,7 +2538,7 @@ async function doManualPayment(
     }
     if (paymentBrowser) {
       try { await paymentBrowser.close(); } catch {
-        try { paymentBrowser.process()?.kill('SIGKILL'); } catch { }
+        try { (paymentBrowser as any).process()?.kill('SIGKILL'); } catch { }
       }
     }
   }
@@ -2748,7 +2750,7 @@ export async function fillCheckoutPayment(
         // Tunggu redirect ke chatgpt.com (bukan /auth)
         try {
           await loginPage.waitForURL(
-            url => url.includes("chatgpt.com") && !url.includes("/auth") && !url.includes("auth0"),
+            url => url.href.includes("chatgpt.com") && !url.href.includes("/auth") && !url.href.includes("auth0"),
             { timeout: 25000 }
           );
           await sleep(2000);
@@ -2888,7 +2890,7 @@ export async function fillCheckoutPayment(
 
         // Tunggu redirect ke checkout
         try {
-          await proxyPage.waitForURL((url: string) => url.includes("/checkout/"), { timeout: 20000 });
+          await proxyPage.waitForURL((url: URL) => url.href.includes("/checkout/"), { timeout: 20000 });
           logFn(`✅ Redirect ke checkout baru!`);
         } catch {
           logFn(`⚠️ Timeout tunggu checkout URL baru — URL: ${proxyPage.url().slice(0, 80)}`);
@@ -3093,7 +3095,7 @@ export async function fillCheckoutPayment(
     // Tunggu redirect ke halaman sukses (away from /checkout/)
     logFn(`⏳ Menunggu redirect halaman sukses...`);
     try {
-      await page.waitForURL((url: string) => !url.includes("/checkout/"), { timeout: 20000 });
+      await page.waitForURL((url: URL) => !url.href.includes("/checkout/"), { timeout: 20000 });
     } catch { }
     await sleep(2000);
 

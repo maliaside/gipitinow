@@ -62,7 +62,10 @@ router.get("/accounts/export", async (_req, res) => {
 router.get("/accounts/:id", async (req, res) => {
   const { id } = GetAccountParams.parse({ id: parseInt(req.params.id) });
   const [account] = await db.select().from(accountsTable).where(eq(accountsTable.id, id));
-  if (!account) return res.status(404).json({ error: "Account not found" });
+  if (!account) {
+    res.status(404).json({ error: "Account not found" });
+    return;
+  }
   res.json({
     id: account.id,
     email: account.email,
