@@ -130,7 +130,7 @@ async function main() {
     if (await sbs.count() >= 3) {
       const vals: [number, string][] = [[0, String(parseInt(bMM))], [1, String(parseInt(bDD))], [2, bYY]];
       for (const [i, v] of vals) {
-        await sbs.nth(i).evaluate(e => (e as HTMLElement).focus());
+        await sbs.nth(i).evaluate((e: Element) => (e as HTMLElement).focus());
         await sleep(150);
         await pg1.keyboard.type(v, { delay: 60 });
         await sleep(150);
@@ -147,7 +147,7 @@ async function main() {
     }, isoDate);
     await sleep(600);
     await Promise.all([
-      pg1.waitForResponse(r => r.url().includes("create_account"), { timeout: 8000 }).catch(() => null),
+      pg1.waitForResponse((r: { url(): string }) => r.url().includes("create_account"), { timeout: 8000 }).catch(() => null),
       pg1.locator("button[type=\"submit\"]").first().click({ force: true }),
     ]);
     await sleep(6000);
@@ -262,7 +262,7 @@ async function main() {
     for (let i = 0; i < 12; i++) {
       await sleep(5000);
       const frames = pg2.frames();
-      const stripes = frames.filter(f => f.url().includes("stripe.com") || f.url().includes("js.stripe"));
+      const stripes = frames.filter((f: { url(): string }) => f.url().includes("stripe.com") || f.url().includes("js.stripe"));
       log(`  [${i + 1}] ${frames.length} frames, ${stripes.length} Stripe`);
       for (const f of frames) {
         if (f.url() && f.url() !== "about:blank" && !f.url().includes("chrome-error")) {

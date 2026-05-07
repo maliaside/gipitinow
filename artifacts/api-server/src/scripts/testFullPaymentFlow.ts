@@ -518,8 +518,8 @@ async function main() {
   log(`🍪 ${cookies.length} cookies tersimpan dari semua domain`);
 
   // Log cookie names penting
-  const impCookies = cookies.filter(c => ["__cf_bm", "__Secure-next-auth.session-token", "oai-did", "oai-nav-state", "_puid"].some(n => c.name.includes(n)));
-  log(`🔑 Cookies penting: ${impCookies.map(c => `${c.name.slice(0,30)}(${c.domain})`).join(", ")}`);
+  const impCookies = cookies.filter((c: { name: string; domain: string }) => ["__cf_bm", "__Secure-next-auth.session-token", "oai-did", "oai-nav-state", "_puid"].some(n => c.name.includes(n)));
+  log(`🔑 Cookies penting: ${impCookies.map((c: { name: string; domain: string }) => `${c.name.slice(0,30)}(${c.domain})`).join(", ")}`);
 
   // ── 9. Buat Korea proxy context ───────────────────────────────────────────
   step("STEP 9: Aktifkan Korea proxy — buat context baru");

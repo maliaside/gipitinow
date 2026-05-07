@@ -1,5 +1,5 @@
 import { useGetStats } from "@workspace/api-client-react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Layout } from "@/components/layout";
 import { 
   Users, 
@@ -42,7 +42,7 @@ export function Dashboard() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
