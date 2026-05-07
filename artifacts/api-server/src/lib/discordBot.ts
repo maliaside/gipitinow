@@ -14,8 +14,8 @@ import { eq } from "drizzle-orm";
 import { startAutoRegistration } from "./autoRegisterBot.js";
 import { fetchRandomProxy } from "./proxyUtils.js";
 
-const DISCORD_TOKEN = "MTQ2ODQyNTI3NDIyNzE2NzI2Mg.G0B04P.bnohaPsjRzaRixC_UgUWpyorC7M-__zL2cuuNE";
-const APPLICATION_ID = "1468425274227167262";
+const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN ?? "";
+const APPLICATION_ID = process.env.DISCORD_APP_ID ?? "1468425274227167262";
 
 let discordClient: Client | null = null;
 
@@ -245,6 +245,10 @@ async function handleCreateGPT(interaction: ChatInputCommandInteraction) {
 }
 
 export async function startDiscordBot(): Promise<void> {
+  if (!DISCORD_TOKEN) {
+    console.warn("[Discord] DISCORD_BOT_TOKEN not set — bot will not start.");
+    return;
+  }
   const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
 
   try {
